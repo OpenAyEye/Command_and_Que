@@ -1,0 +1,48 @@
+<!-- popup.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Queue</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f4f4f4;
+        }
+
+        #queueList {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        #queueList li {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h2>Register Queue</h2>
+    <button id="readyButton">Ready</button>
+    <ul id="queueList"></ul>
+    <script src="popup.js"></script>
+</body>
+</html>

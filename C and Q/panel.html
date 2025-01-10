@@ -1,0 +1,40 @@
+<!-- panel.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Front Desk Queue</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f4f4f4;
+        }
+
+        #registerContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+
+        .register {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 50px;
+            background-color: gray;
+            color: white;
+            font-size: 14px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h2>Front Desk Queue</h2>
+    <div id="registerContainer"></div>
+    <script src="panel.js"></script>
+</body>
+</html>
