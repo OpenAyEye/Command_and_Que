@@ -51,6 +51,7 @@ function assignRegisterId(ws) {
     db.get(`SELECT COUNT(*) AS count FROM registers`, [], (err, row) => {
         if (err) {
             console.error('Database error:', err);
+            ws.send(JSON.stringify({ type: 'error', message: 'Database error while assigning register ID.' }));
             return;
         }
 
@@ -58,39 +59,64 @@ function assignRegisterId(ws) {
         db.run(`INSERT INTO registers (registerId) VALUES (?)`, [newId], (err) => {
             if (err) {
                 console.error('Database insert error:', err);
+                ws.send(JSON.stringify({ type: 'error', message: 'Failed to assign register ID.' }));
                 return;
             }
-            ws.send(JSON.stringify({ type: 'registerAssigned', registerId: newId }));
-            console.log(`Assigned new register ID: ${newId}`);
+            try {
+                ws.send(JSON.stringify({ type: 'registerAssigned', registerId: newId }));
+                console.log(`Assigned new register ID: ${newId}`);
+            } catch (sendError) {
+                console.error('Error sending registerAssigned message:', sendError);
+            }
         });
     });
 }
 
 wss.on('connection', (ws) => {
+    const clientId = Math.random().toString(36).substr(2, 9);
+    clients[clientId] = ws;
+    console.log(`New client connected: ${clientId}`);
+
     ws.on('message', (message) => {
-        const data = JSON.parse(message);
+        let data;
+        try {
+            data = JSON.parse(message);
+        } catch (parseError) {
+            console.error('Invalid message received:', message);
+            ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format.' }));
+            return;
+        }
 
         if (data.type === 'registerReady') {
             if (!queue.includes(data.registerId)) {
                 queue.push(data.registerId);
+                console.log(`Register ready: ${data.registerId}`);
                 broadcastQueue();
             }
         } else if (data.type === 'assignCustomer') {
             if (queue.length > 0) {
                 const assignedRegister = queue.shift();
+                console.log(`Customer assigned to: ${assignedRegister}`);
                 broadcastQueue();
                 ws.send(JSON.stringify({ type: 'customerAssigned', register: assignedRegister }));
+            } else {
+                console.log('No registers available to assign a customer.');
             }
         } else if (data.type === 'requestRegisterId') {
             assignRegisterId(ws);
+        } else {
+            console.error('Unknown message type:', data.type);
+            ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type.' }));
         }
     });
 
-    const clientId = Math.random().toString(36).substr(2, 9);
-    clients[clientId] = ws;
-
     ws.on('close', () => {
+        console.log(`Client disconnected: ${clientId}`);
         delete clients[clientId];
+    });
+
+    ws.on('error', (err) => {
+        console.error(`Error on connection with client ${clientId}:`, err.message);
     });
 });
 
